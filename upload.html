@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رفع الملفات — Debt Table 313</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark light">
+<style>
+  :root{
+    --bg:#0a0e17;
+    --bg-soft:#0f1522;
+    --panel:#131b2a;
+    --panel-2:#17202f;
+    --line:#25303f;
+    --line-soft:#1c2534;
+    --text:#e8eef8;
+    --muted:#93a2b8;
+    --accent:#38d6b0;
+    --accent-2:#5b8cff;
+    --danger:#ff6b6b;
+    --warn:#f3b34a;
+    --ok:#38d6b0;
+    --radius:18px;
+    --shadow:0 18px 50px -20px rgba(0,0,0,.85);
+    --font:"Segoe UI",system-ui,-apple-system,"Noto Naskh Arabic","Noto Sans Arabic",Tahoma,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f4f7fb;
+      --bg-soft:#eef2f8;
+      --panel:#ffffff;
+      --panel-2:#f8fafc;
+      --line:#dbe3ee;
+      --line-soft:#e7edf5;
+      --text:#0d1520;
+      --muted:#5c6b80;
+      --accent:#0f9d7d;
+      --accent-2:#2f6bff;
+      --danger:#d63b3b;
+      --warn:#a86a00;
+      --ok:#0f9d7d;
+      --shadow:0 18px 45px -28px rgba(13,32,58,.55);
+    }
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(91,140,255,.18), transparent 60%),
+      radial-gradient(700px 450px at 5% 0%, rgba(56,214,176,.14), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font);
+    line-height:1.6;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 80px}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:18px 0 6px;
+  }
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+  .brand-mark{
+    width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+    background:linear-gradient(140deg,var(--accent),var(--accent-2));
+    color:#04121a;font-weight:800;font-size:17px;letter-spacing:-.5px;
+    box-shadow:0 8px 22px -10px var(--accent);
+  }
+  .brand-text{display:flex;flex-direction:column;line-height:1.25}
+  .brand-text b{font-size:15px;letter-spacing:.2px}
+  .brand-text span{font-size:11.5px;color:var(--muted);letter-spacing:.6px}
+  .topbar-links{display:flex;align-items:center;gap:8px}
+  .ghost-link{
+    text-decoration:none;font-size:13.5px;color:var(--muted);
+    padding:8px 14px;border-radius:999px;border:1px solid var(--line);
+    transition:.18s;background:transparent;
+  }
+  .ghost-link:hover{color:var(--text);border-color:var(--accent);background:var(--panel-2)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:26px 0 22px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;
+    color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);
+    background:color-mix(in srgb,var(--accent) 9%,transparent);
+    padding:5px 12px;border-radius:999px;margin-bottom:14px;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 18%,transparent)}
+  h1{font-size:clamp(26px,4.4vw,38px);line-height:1.15;margin:0 0 10px;letter-spacing:-.6px}
+  h1 em{
+    font-style:normal;
+    background:linear-gradient(100deg,var(--accent),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{margin:0;color:var(--muted);font-size:15px;max-width:60ch}
+
+  /* ---------- cards ---------- */
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px;
+  }
+  .card + .card{margin-top:16px}
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .card-title{display:flex;align-items:center;gap:10px;font-weight:650;font-size:15px;margin:0}
+  .card-title svg{width:18px;height:18px;color:var(--accent)}
+
+  /* ---------- token ---------- */
+  .status{
+    display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+    padding:5px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);
+    background:var(--panel-2);white-space:nowrap;
+  }
+  .status.on{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+  .status.err{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent);background:color-mix(in srgb,var(--danger) 10%,transparent)}
+  .field-row{display:flex;gap:10px;flex-wrap:wrap}
+  input[type=password],input[type=text]{
+    flex:1 1 260px;min-width:0;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    border-radius:12px;padding:12px 14px;font:inherit;font-size:14px;
+    transition:.18s;outline:none;direction:ltr;text-align:left;
+  }
+  input::placeholder{color:color-mix(in srgb,var(--muted) 75%,transparent)}
+  input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+  input:disabled{opacity:.55}
+  .btn{
+    font:inherit;font-size:14px;font-weight:650;cursor:pointer;
+    border-radius:12px;padding:12px 20px;border:1px solid transparent;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    transition:.18s;white-space:nowrap;
+  }
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#04121a;box-shadow:0 10px 26px -14px var(--accent-2);
+  }
+  html[data-theme] .btn-primary, :root:not([data-theme]) .btn-primary{color:#04121a}
+  .btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 14px 30px -14px var(--accent-2)}
+  .btn-ghost{background:var(--panel-2);border-color:var(--line);color:var(--text)}
+  .btn-ghost:not(:disabled):hover{border-color:var(--accent);color:var(--accent)}
+  .btn-danger{background:transparent;border-color:color-mix(in srgb,var(--danger) 40%,transparent);color:var(--danger);padding:9px 14px;font-size:13px}
+  .btn-danger:hover{background:color-mix(in srgb,var(--danger) 12%,transparent)}
+  .hint{font-size:12.5px;color:var(--muted);margin:12px 0 0}
+  .hint code{
+    background:var(--panel-2);border:1px solid var(--line-soft);border-radius:6px;
+    padding:1px 6px;font-size:11.5px;direction:ltr;display:inline-block;
+  }
+  .note{
+    display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:11px 13px;
+    border-radius:12px;background:color-mix(in srgb,var(--warn) 10%,transparent);
+    border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);
+    color:var(--text);font-size:12.5px;line-height:1.55;
+  }
+  .note svg{width:16px;height:16px;flex:0 0 auto;color:var(--warn);margin-top:2px}
+
+  /* ---------- dropzone ---------- */
+  .drop{
+    position:relative;margin-top:16px;
+    border:2px dashed var(--line);border-radius:var(--radius);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 65%,transparent),transparent);
+    padding:44px 24px;text-align:center;cursor:pointer;transition:.2s;outline:none;
+  }
+  .drop:hover,.drop:focus-visible{border-color:color-mix(in srgb,var(--accent) 60%,transparent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
+  .drop.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 11%,transparent);transform:scale(1.004)}
+  .drop.locked{cursor:not-allowed;opacity:.5}
+  .drop.locked:hover{border-color:var(--line);background:transparent}
+  .drop-icon{
+    width:56px;height:56px;margin:0 auto 14px;border-radius:16px;display:grid;place-items:center;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--accent);
+  }
+  .drop-icon svg{width:26px;height:26px}
+  .drop b{display:block;font-size:15.5px;margin-bottom:5px}
+  .drop small{display:block;color:var(--muted);font-size:13px}
+  .drop .kbd{font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:.4px}
+
+  /* ---------- selected files ---------- */
+  .list{margin:16px 0 0;display:flex;flex-direction:column;gap:10px}
+  .item{
+    display:flex;align-items:center;gap:13px;padding:11px;
+    background:var(--panel-2);border:1px solid var(--line-soft);border-radius:14px;
+    animation:pop .22s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .thumb{
+    width:52px;height:52px;flex:0 0 auto;border-radius:11px;overflow:hidden;
+    background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb svg{width:22px;height:22px}
+  .meta{flex:1 1 auto;min-width:0}
+  .meta .name{
+    font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    direction:ltr;text-align:right;
+  }
+  .meta .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .bar{height:4px;border-radius:99px;background:var(--line-soft);overflow:hidden;margin-top:8px;display:none}
+  .bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .18s}
+  .item[data-state=uploading] .bar{display:block}
+  .item[data-state=idle] .state-txt{display:none}
+  .item[data-state=done] .thumb{border-color:color-mix(in srgb,var(--ok) 50%,transparent);color:var(--ok)}
+  .item[data-state=error] .thumb{border-color:color-mix(in srgb,var(--danger) 50%,transparent);color:var(--danger)}
+  .item .state-txt{font-size:11.5px;margin-top:2px}
+  .item[data-state=done] .state-txt{color:var(--ok)}
+  .item[data-state=error] .state-txt{color:var(--danger)}
+  .item[data-state=uploading] .state-txt{color:var(--accent)}
+  .x{
+    flex:0 0 auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+    background:transparent;border:1px solid transparent;color:var(--muted);cursor:pointer;transition:.16s;
+  }
+  .x:hover{background:color-mix(in srgb,var(--danger) 14%,transparent);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 30%,transparent)}
+  .x svg{width:15px;height:15px}
+
+  .actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;flex-wrap:wrap}
+  .actions .totals{font-size:12.5px;color:var(--muted)}
+  .actions .right{display:flex;gap:9px}
+
+  /* ---------- recent ---------- */
+  .recent{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px;margin-top:4px}
+  .rcard{
+    border:1px solid var(--line-soft);border-radius:13px;overflow:hidden;background:var(--panel-2);
+    display:flex;flex-direction:column;transition:.18s;
+  }
+  .rcard:hover{border-color:color-mix(in srgb,var(--accent) 45%,transparent);transform:translateY(-2px)}
+  .rcard .rt{height:86px;display:grid;place-items:center;background:var(--panel);color:var(--muted);overflow:hidden}
+  .rcard .rt img{width:100%;height:100%;object-fit:cover}
+  .rcard .rt svg{width:24px;height:24px}
+  .rcard .ri{padding:9px 10px;display:flex;align-items:center;gap:8px;min-width:0}
+  .rcard .rn{
+    flex:1 1 auto;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    direction:ltr;text-align:right;color:var(--muted);
+  }
+  .rcard .x{width:26px;height:26px;border-radius:7px}
+  .rcard .x svg{width:13px;height:13px}
+  .empty{
+    text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;
+    border:1px dashed var(--line);border-radius:14px;
+  }
+
+  /* ---------- toasts ---------- */
+  .toasts{position:fixed;inset-block-end:20px;inset-inline-start:20px;display:flex;flex-direction:column;gap:9px;z-index:60;max-width:min(360px,90vw)}
+  .toast{
+    display:flex;align-items:flex-start;gap:9px;padding:12px 14px;border-radius:12px;
+    background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);
+    font-size:13px;animation:slide .25s ease;
+  }
+  .toast.ok{border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+  .toast.err{border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
+  .toast svg{width:16px;height:16px;flex:0 0 auto;margin-top:2px}
+  .toast.ok svg{color:var(--ok)}
+  .toast.err svg{color:var(--danger)}
+  @keyframes slide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  @media (max-width:560px){
+    .wrap{padding:0 14px 60px}
+    .drop{padding:32px 16px}
+    .card{padding:16px}
+    .actions{flex-direction:column;align-items:stretch}
+    .actions .right{justify-content:stretch}
+    .actions .right .btn{flex:1}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">313</span>
+      <span class="brand-text">
+        <b>Debt Table 313</b>
+        <span>FILE UPLOAD</span>
+      </span>
+    </a>
+    <nav class="topbar-links">
+      <a class="ghost-link" href="index.html">المعرض ←</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <span class="eyebrow"><span class="dot"></span> رفع مباشر إلى GitHub</span>
+    <h1>ارفع ملفاتك، <em>وستظهر فوراً</em> في المعرض.</h1>
+    <p class="lede">
+      اختر الصور أو الفيديو أو أي ملف. يُحفظ الملف داخل المستودع في مجلد <code style="direction:ltr">uploads/</code>
+      ويُضاف إلى فهرس المعرض تلقائياً. لا يوجد سيرفر وسيط — كل رفع هو كوميت واحد.
+    </p>
+  </section>
+
+  <!-- token -->
+  <section class="card" id="tokenCard" aria-labelledby="tokenTitle">
+    <div class="card-head">
+      <h2 class="card-title" id="tokenTitle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M11.5 11.5 3 20v1h3v-2h2v-2h2l1.5-1.5"/></svg>
+        صلاحية الرفع
+      </h2>
+      <span class="status" id="status"><span class="dot"></span> غير متصل</span>
+    </div>
+
+    <form id="tokenForm" class="field-row" autocomplete="off">
+      <label class="sr" for="token">رمز GitHub</label>
+      <input id="token" type="password" inputmode="text" spellcheck="false"
+             placeholder="github_pat_… أو ghp_…" aria-describedby="tokenHint">
+      <button class="btn btn-primary" id="connectBtn" type="submit">اتصال</button>
+      <button class="btn btn-ghost" id="forgetBtn" type="button" hidden>قطع الاتصال</button>
+    </form>
+
+    <p class="hint" id="tokenHint">
+      تحتاج رمزاً بصلاحية <code>Contents: Read and write</code> على المستودع
+      <code id="repoLabel">Alie50/Debt-Table313</code>.
+      يُخزَّن الرمز في هذا المتصفح فقط ولا يُرفع إلى المستودع أبداً.
+    </p>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.9 18.4A2 2 0 0 0 3.6 21.4h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+      <span>هذه الصفحة عامة. من يملك الرمز فقط يستطيع الرفع أو الحذف؛ الزائر العادي يرى الواجهة دون قدرة على الكتابة.</span>
+    </div>
+  </section>
+
+  <!-- uploader -->
+  <section class="card" aria-labelledby="upTitle">
+    <div class="card-head">
+      <h2 class="card-title" id="upTitle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        اختيار الملفات
+      </h2>
+      <span class="status" id="sizeStatus">الحد 20 م.ب / ملف</span>
+    </div>
+
+    <div class="drop locked" id="drop" role="button" tabindex="0" aria-label="اختيار ملفات للرفع أو إسقاطها هنا">
+      <div class="drop-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/></svg>
+      </div>
+      <b id="dropTitle">اتصل أولاً لتفعيل الرفع</b>
+      <small id="dropSub">اسحب الملفات هنا أو اضغط للاختيار</small>
+      <div class="kbd">JPG · PNG · WEBP · GIF · SVG · MP4 · PDF · ZIP …</div>
+      <input id="fileInput" type="file" multiple hidden>
+    </div>
+
+    <div class="list" id="list" aria-live="polite"></div>
+
+    <div class="actions" id="actions" hidden>
+      <div class="totals" id="totals"></div>
+      <div class="right">
+        <button class="btn btn-ghost" id="clearBtn" type="button">إفراغ القائمة</button>
+        <button class="btn btn-primary" id="uploadBtn" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          رفع الكل
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- recent -->
+  <section class="card" aria-labelledby="rcTitle">
+    <div class="card-head">
+      <h2 class="card-title" id="rcTitle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18v5H3z"/><path d="M5 9v11h14V9"/><path d="M10 13h4"/></svg>
+        آخر ما رُفع
+      </h2>
+      <button class="btn btn-ghost" id="refreshBtn" type="button" style="padding:7px 13px;font-size:12.5px">تحديث</button>
+    </div>
+    <div id="recentBox"><div class="empty">جارٍ التحميل…</div></div>
+  </section>
+
+</div>
+
+<div class="toasts" id="toasts" aria-live="assertive"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ============ config ============ */
+  const CFG = {
+    repo: "Alie50/Debt-Table313",
+    branch: "main",
+    dir: "uploads",
+    manifest: "data/files.json",
+    maxBytes: 20 * 1024 * 1024,
+    hardMax: 95 * 1024 * 1024,
+    tokenKey: "dt313.token"
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function detectRepo() {
+    const m = /^([a-z0-9-]+)\.github\.io$/i.exec(location.hostname);
+    if (m) {
+      const seg = location.pathname.split("/").filter(Boolean)[0];
+      if (seg) return m[1] + "/" + seg;
+    }
+    return CFG.repo;
+  }
+  const REPO = detectRepo();
+  const API = "https://api.github.com/repos/" + REPO;
+
+  // canonical Pages base — independent of where the page is opened from,
+  // so URLs saved in the manifest never point to localhost or a preview host.
+  const pagesBase = (() => {
+    const parts = REPO.split("/");
+    return "https://" + (parts[0] || "").toLowerCase() + ".github.io/" + (parts[1] || "") + "/";
+  })();
+
+  /* ============ state ============ */
+  const state = {
+    token: "",
+    ready: false,
+    items: [],       // {id,file,state,progress,error,result}
+    busy: false
+  };
+  let seq = 0;
+
+  /* ============ helpers ============ */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const fmtSize = (n) => {
+    if (!n && n !== 0) return "";
+    if (n < 1024) return n + " بايت";
+    const u = ["ك.ب", "م.ب", "غ.ب"];
+    let i = -1, v = n;
+    do { v /= 1024; i++; } while (v >= 1024 && i < 2);
+    return (v < 10 ? v.toFixed(1) : Math.round(v)) + " " + u[i];
+  };
+
+  const fmtDate = (iso) => {
+    try {
+      return new Intl.DateTimeFormat("ar", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
+    } catch { return ""; }
+  };
+
+  const slug = (name) => {
+    const dot = name.lastIndexOf(".");
+    const base = dot > 0 ? name.slice(0, dot) : name;
+    const ext = dot > 0 ? name.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, "") : "";
+    const clean = base.toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 48) || "file";
+    return ext ? clean + "." + ext : clean;
+  };
+
+  function kindOf(type, name) {
+    const t = (type || "").toLowerCase();
+    const e = (name.split(".").pop() || "").toLowerCase();
+    if (t.startsWith("image/") || ["jpg","jpeg","png","gif","webp","svg","avif","bmp","ico"].includes(e)) return "image";
+    if (t.startsWith("video/") || ["mp4","webm","mov","mkv","m4v"].includes(e)) return "video";
+    if (t.startsWith("audio/") || ["mp3","wav","ogg","m4a","flac","aac"].includes(e)) return "audio";
+    if (t === "application/pdf" || e === "pdf") return "pdf";
+    return "file";
+  }
+
+  const SVG = {
+    image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg>',
+    video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="13" height="14" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg>',
+    audio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>',
+    pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>',
+    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>',
+    err: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>'
+  };
+
+  function toast(msg, type) {
+    const el = document.createElement("div");
+    el.className = "toast " + (type === "err" ? "err" : "ok");
+    el.innerHTML = (type === "err" ? SVG.err : SVG.ok) + "<span></span>";
+    el.lastElementChild.textContent = msg;
+    $("toasts").appendChild(el);
+    setTimeout(() => {
+      el.style.transition = "opacity .25s, transform .25s";
+      el.style.opacity = "0";
+      el.style.transform = "translateY(8px)";
+      setTimeout(() => el.remove(), 260);
+    }, 4200);
+  }
+
+  /* ============ github api ============ */
+  function api(method, url, body, onProgress) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      xhr.setRequestHeader("Authorization", "Bearer " + state.token);
+      xhr.setRequestHeader("Accept", "application/vnd.github+json");
+      if (body) xhr.setRequestHeader("Content-Type", "application/json");
+      if (onProgress && xhr.upload) {
+        xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded / e.total); };
+      }
+      xhr.onload = () => {
+        let data = null;
+        try { data = xhr.responseText ? JSON.parse(xhr.responseText) : null; } catch (_) {}
+        if (xhr.status >= 200 && xhr.status < 300) resolve(data);
+        else {
+          const err = new Error((data && data.message) || ("HTTP " + xhr.status));
+          err.status = xhr.status;
+          reject(err);
+        }
+      };
+      xhr.onerror = () => reject(new Error("تعذّر الاتصال بالشبكة"));
+      xhr.ontimeout = () => reject(new Error("انتهت مهلة الطلب"));
+      xhr.timeout = 120000;
+      xhr.send(body ? JSON.stringify(body) : null);
+    });
+  }
+
+  const contentsUrl = (path) =>
+    API + "/contents/" + path.split("/").map(encodeURIComponent).join("/");
+
+  async function getFile(path) {
+    try {
+      const j = await api("GET", contentsUrl(path) + "?ref=" + encodeURIComponent(CFG.branch) + "&t=" + Date.now());
+      return j && j.content ? { sha: j.sha, text: b64ToText(j.content) } : null;
+    } catch (e) {
+      if (e.status === 404) return null;
+      throw e;
+    }
+  }
+
+  async function putFile(path, base64, message, sha, onProgress) {
+    const payload = { message, content: base64, branch: CFG.branch };
+    if (sha) payload.sha = sha;
+    return api("PUT", contentsUrl(path), payload, onProgress);
+  }
+
+  async function deleteFile(path, sha, message) {
+    return api("DELETE", contentsUrl(path), { message, sha, branch: CFG.branch });
+  }
+
+  /* --- base64 / utf8 --- */
+  function b64ToText(b64) {
+    const clean = String(b64).replace(/[\r\n\s]/g, "");
+    const bin = atob(clean);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function textToB64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let out = "";
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      out += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(out);
+  }
+
+  function fileToB64(file, onProgress) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+      reader.onerror = () => reject(new Error("تعذّر قراءة الملف"));
+      reader.onload = () => {
+        const s = String(reader.result);
+        const i = s.indexOf(",");
+        resolve(i >= 0 ? s.slice(i + 1) : s);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* ============ manifest ============ */
+  async function readManifest() {
+    const got = await getFile(CFG.manifest);
+    if (!got) return { files: [], sha: null };
+    let parsed = null;
+    try { parsed = JSON.parse(got.text); } catch (_) {}
+    const files = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.files) ? parsed.files : []);
+    return { files, sha: got.sha };
+  }
+
+  async function writeManifest(files, sha) {
+    const body = JSON.stringify({ updatedAt: new Date().toISOString(), files }, null, 2) + "\n";
+    const msg = "تحديث فهرس الملفات (" + files.length + ")";
+    try {
+      return await putFile(CFG.manifest, textToB64(body), msg, sha);
+    } catch (e) {
+      if (e.status === 409 && sha) {
+        const fresh = await readManifest();
+        return putFile(CFG.manifest, textToB64(body), msg, fresh.sha);
+      }
+      throw e;
+    }
+  }
+
+  /* ============ token handling ============ */
+  function savedToken() {
+    try {
+      return sessionStorage.getItem(CFG.tokenKey) || localStorage.getItem(CFG.tokenKey) || "";
+    } catch (_) { return ""; }
+  }
+
+  function storeToken(token, remember) {
+    try {
+      sessionStorage.removeItem(CFG.tokenKey);
+      localStorage.removeItem(CFG.tokenKey);
+      (remember ? localStorage : sessionStorage).setItem(CFG.tokenKey, token);
+    } catch (_) {}
+  }
+
+  function dropToken() {
+    try {
+      sessionStorage.removeItem(CFG.tokenKey);
+      localStorage.removeItem(CFG.tokenKey);
+    } catch (_) {}
+  }
+
+  function setStatus(kind, text) {
+    const el = $("status");
+    el.className = "status" + (kind ? " " + kind : "");
+    el.innerHTML = '<span class="dot"></span>' + esc(text);
+  }
+
+  function setReady(ok) {
+    state.ready = ok;
+    const drop = $("drop");
+    drop.classList.toggle("locked", !ok);
+    $("dropTitle").textContent = ok ? "اسحب الملفات هنا أو اضغط للاختيار" : "اتصل أولاً لتفعيل الرفع";
+    $("dropSub").textContent = ok
+      ? "يمكنك اختيار أكثر من ملف في المرة الواحدة"
+      : "أدخل رمز GitHub في الأعلى ثم اضغط اتصال";
+    $("connectBtn").disabled = false;
+    $("forgetBtn").hidden = !ok;
+    $("token").disabled = ok;
+  }
+
+  async function connect(token, silent) {
+    state.token = token.trim();
+    if (!state.token) { setStatus("", "غير متصل"); setReady(false); return false; }
+    if (!silent) { $("connectBtn").disabled = true; $("connectBtn").textContent = "جارٍ التحقق…"; }
+    try {
+      const repo = await api("GET", "https://api.github.com/repos/" + REPO);
+      if (!repo || !repo.permissions || !repo.permissions.push) {
+        throw new Error("الرمز لا يملك صلاحية الكتابة على هذا المستودع");
+      }
+      state.repoOk = true;
+      setStatus("on", "متصل — " + REPO);
+      setReady(true);
+      $("token").value = "";
+      if (!silent) toast("تم الاتصال بنجاح. الرفع مفعّل.");
+      loadRecent();
+      return true;
+    } catch (e) {
+      state.repoOk = false;
+      dropToken();
+      $("token").value = "";
+      setStatus("err", e.status === 401 ? "رمز غير صالح" : "فشل الاتصال");
+      setReady(false);
+      if (!silent) toast(e.status === 401 ? "الرمز غير صالح أو منتهي." : e.message, "err");
+      return false;
+    } finally {
+      $("connectBtn").disabled = false;
+      $("connectBtn").textContent = "اتصال";
+    }
+  }
+
+  /* ============ selection ============ */
+  function addFiles(fileList) {
+    if (!state.ready) { toast("اتصل أولاً لتتمكن من الرفع.", "err"); return; }
+    const incoming = Array.from(fileList || []);
+    if (!incoming.length) return;
+    let rejected = 0;
+    for (const file of incoming) {
+      if (file.size > CFG.hardMax) { rejected++; continue; }
+      if (file.size > CFG.maxBytes) { rejected++; continue; }
+      if (state.items.some((it) => it.file.name === file.name && it.file.size === file.size && it.file.lastModified === file.lastModified)) continue;
+      state.items.push({ id: ++seq, file, state: "idle", progress: 0, error: "" });
+    }
+    if (rejected) toast(rejected + " ملف تجاوز الحد المسموح (" + fmtSize(CFG.maxBytes) + ").", "err");
+    renderList();
+  }
+
+  function removeItem(id) {
+    const it = state.items.find((x) => x.id === id);
+    if (!it || it.state === "uploading") return;
+    state.items = state.items.filter((x) => x.id !== id);
+    renderList();
+  }
+
+  function renderList() {
+    const list = $("list");
+    list.innerHTML = "";
+    state.items.forEach((it) => list.appendChild(itemNode(it)));
+    const idle = state.items.filter((it) => it.state === "idle").length;
+    const total = state.items.reduce((s, it) => s + it.file.size, 0);
+    $("actions").hidden = state.items.length === 0;
+    $("totals").textContent = (idle || state.items.length) + " ملف • " + fmtSize(total);
+    $("uploadBtn").disabled = idle === 0 || state.busy;
+    $("clearBtn").disabled = state.busy;
+    $("uploadBtn").title = idle ? "" : "لا توجد ملفات بانتظار الرفع";
+  }
+
+  function itemNode(it) {
+    const el = document.createElement("div");
+    el.className = "item";
+    el.dataset.state = it.state;
+    el.dataset.id = String(it.id);
+
+    const kind = kindOf(it.file.type, it.file.name);
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+    if (kind === "image") {
+      const img = document.createElement("img");
+      img.alt = "";
+      img.src = URL.createObjectURL(it.file);
+      img.onload = () => URL.revokeObjectURL(img.src);
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = SVG[kind] || SVG.file;
+    }
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = it.file.name;
+    name.title = it.file.name;
+
+    const sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = fmtSize(it.file.size) + " • " + (it.file.type || "غير معروف");
+
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    const fill = document.createElement("i");
+    fill.style.width = Math.round(it.progress * 100) + "%";
+    bar.appendChild(fill);
+
+    const st = document.createElement("div");
+    st.className = "state-txt";
+    st.textContent = it.state === "uploading"
+      ? "جارٍ الرفع… " + Math.round(it.progress * 100) + "%"
+      : it.state === "done" ? "تم الرفع ✓" : it.state === "error" ? "فشل: " + it.error : "";
+
+    meta.append(name, sub, bar, st);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "x";
+    btn.title = it.state === "done" ? "إزالة من القائمة" : "إزالة";
+    btn.setAttribute("aria-label", "إزالة " + it.file.name);
+    btn.innerHTML = SVG.x;
+    btn.disabled = it.state === "uploading";
+    btn.addEventListener("click", () => removeItem(it.id));
+
+    el.append(thumb, meta, btn);
+    return el;
+  }
+
+  // update a single row in place (progress ticks must not rebuild the whole list)
+  function paint(it) {
+    const el = $("list").querySelector('.item[data-id="' + it.id + '"]');
+    if (!el) { renderList(); return; }
+    el.dataset.state = it.state;
+    const fill = el.querySelector(".bar i");
+    if (fill) fill.style.width = Math.round(it.progress * 100) + "%";
+    const st = el.querySelector(".state-txt");
+    if (st) {
+      st.textContent = it.state === "uploading"
+        ? "جارٍ الرفع… " + Math.round(it.progress * 100) + "%"
+        : it.state === "done" ? "تم الرفع ✓" : it.state === "error" ? "فشل: " + it.error : "";
+    }
+    const btn = el.querySelector(".x");
+    if (btn) btn.disabled = it.state === "uploading";
+  }
+
+  /* ============ upload flow ============ */
+  async function uploadAll() {
+    const pending = state.items.filter((it) => it.state === "idle");
+    if (!pending.length || state.busy) return;
+
+    state.busy = true;
+    renderList();
+    $("uploadBtn").textContent = "جارٍ الرفع…";
+
+    const added = [];
+    let failures = 0;
+
+    for (const it of pending) {
+      it.state = "uploading";
+      it.progress = 0;
+      paint(it);
+      try {
+        const stamp = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
+        const rand = Math.random().toString(36).slice(2, 8);
+        const path = CFG.dir + "/" + stamp + "-" + rand + "-" + slug(it.file.name);
+
+        const b64 = await fileToB64(it.file, (p) => {
+          it.progress = p * 0.35;
+          paint(it);
+        });
+
+        const res = await putFile(path, b64, "رفع: " + it.file.name, null, (p) => {
+          it.progress = 0.35 + p * 0.65;
+          paint(it);
+        });
+
+        it.state = "done";
+        it.progress = 1;
+        it.result = {
+          name: it.file.name,
+          path,
+          url: pagesBase + path.split("/").map(encodeURIComponent).join("/"),
+          size: it.file.size,
+          type: it.file.type || "application/octet-stream",
+          kind: kindOf(it.file.type, it.file.name),
+          sha: res && res.content ? res.content.sha : "",
+          uploadedAt: new Date().toISOString()
+        };
+        added.push(it.result);
+      } catch (e) {
+        it.state = "error";
+        it.error = e.status === 401 ? "رمز غير صالح" : e.message;
+        failures++;
+      }
+      paint(it);
+    }
+
+    if (added.length) {
+      try {
+        const fresh = await readManifest();
+        const merged = added.concat(fresh.files);
+        await writeManifest(merged, fresh.sha);
+        toast("تم رفع " + added.length + " ملف. سيظهر في المعرض خلال دقيقة تقريباً.");
+      } catch (e) {
+        toast("رُفعت الملفات لكن فشل تحديث الفهرس: " + e.message, "err");
+      }
+    }
+
+    if (failures) toast(failures + " ملف فشل رفعه.", "err");
+
+    state.busy = false;
+    const btn = $("uploadBtn");
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg> رفع الكل';
+    renderList();
+    loadRecent();
+  }
+
+  /* ============ recent ============ */
+  async function loadRecent() {
+    const box = $("recentBox");
+    if (!state.ready) {
+      box.innerHTML = '<div class="empty">اتصل لعرض سجل الرفع.</div>';
+      return;
+    }
+    box.innerHTML = '<div class="empty">جارٍ التحميل…</div>';
+    try {
+      const { files } = await readManifest();
+      if (!files.length) {
+        box.innerHTML = '<div class="empty">لا توجد ملفات بعد — ابدأ برفع أول ملف.</div>';
+        return;
+      }
+      const grid = document.createElement("div");
+      grid.className = "recent";
+      files.slice(0, 12).forEach((f) => grid.appendChild(recentCard(f)));
+      box.innerHTML = "";
+      box.appendChild(grid);
+    } catch (e) {
+      box.innerHTML = '<div class="empty">تعذّر تحميل السجل: ' + esc(e.message) + "</div>";
+    }
+  }
+
+  function recentCard(f) {
+    const card = document.createElement("div");
+    card.className = "rcard";
+
+    const top = document.createElement("div");
+    top.className = "rt";
+    if (f.kind === "image") {
+      const img = document.createElement("img");
+      img.src = f.url; img.alt = f.name; img.loading = "lazy";
+      img.decoding = "async";
+      img.onerror = () => { top.innerHTML = SVG.image; };
+      top.appendChild(img);
+    } else {
+      top.innerHTML = SVG[f.kind] || SVG.file;
+    }
+
+    const row = document.createElement("div");
+    row.className = "ri";
+    const name = document.createElement("span");
+    name.className = "rn";
+    name.textContent = f.name;
+    name.title = f.name + " • " + fmtSize(f.size);
+
+    const del = document.createElement("button");
+    del.className = "x";
+    del.type = "button";
+    del.title = "حذف نهائي";
+    del.setAttribute("aria-label", "حذف " + f.name);
+    del.innerHTML = SVG.x;
+    del.addEventListener("click", () => removeRemote(f, card));
+
+    row.append(name, del);
+    card.append(top, row);
+    return card;
+  }
+
+  async function removeRemote(f, card) {
+    if (!state.ready) return;
+    if (!confirm("حذف «" + f.name + "» من المستودع نهائياً؟")) return;
+    card.style.opacity = ".4";
+    try {
+      const got = await getFile(f.path);
+      if (got) await deleteFile(f.path, got.sha, "حذف: " + f.name);
+      const fresh = await readManifest();
+      const next = fresh.files.filter((x) => x.path !== f.path);
+      await writeManifest(next, fresh.sha);
+      card.remove();
+      toast("تم حذف الملف.");
+      loadRecent();
+    } catch (e) {
+      card.style.opacity = "1";
+      toast("فشل الحذف: " + e.message, "err");
+    }
+  }
+
+  /* ============ wiring ============ */
+  $("repoLabel").textContent = REPO;
+
+  $("tokenForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const val = $("token").value.trim();
+    if (!val) { toast("أدخل الرمز أولاً.", "err"); return; }
+    storeToken(val, false);
+    connect(val, false);
+  });
+
+  $("forgetBtn").addEventListener("click", () => {
+    dropToken();
+    state.token = "";
+    setStatus("", "غير متصل");
+    setReady(false);
+    $("token").value = "";
+    $("recentBox").innerHTML = '<div class="empty">اتصل لعرض سجل الرفع.</div>';
+    toast("تم قطع الاتصال ومحو الرمز من المتصفح.");
+  });
+
+  const drop = $("drop");
+  const input = $("fileInput");
+
+  drop.addEventListener("click", () => { if (state.ready) input.click(); else toast("اتصل أولاً لتفعيل الرفع.", "err"); });
+  drop.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drop.click(); }
+  });
+  input.addEventListener("change", () => { addFiles(input.files); input.value = ""; });
+
+  ["dragenter", "dragover"].forEach((ev) =>
+    drop.addEventListener(ev, (e) => {
+      e.preventDefault();
+      if (state.ready) drop.classList.add("drag");
+    })
+  );
+  ["dragleave", "dragend"].forEach((ev) =>
+    drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("drag"); })
+  );
+  drop.addEventListener("drop", (e) => {
+    e.preventDefault();
+    drop.classList.remove("drag");
+    if (!state.ready) { toast("اتصل أولاً لتفعيل الرفع.", "err"); return; }
+    addFiles(e.dataTransfer && e.dataTransfer.files);
+  });
+
+  // prevent the browser from opening dropped files outside the zone
+  ["dragover", "drop"].forEach((ev) =>
+    window.addEventListener(ev, (e) => {
+      if (!drop.contains(e.target)) e.preventDefault();
+    })
+  );
+
+  $("uploadBtn").addEventListener("click", uploadAll);
+  $("clearBtn").addEventListener("click", () => {
+    state.items = state.items.filter((it) => it.state === "uploading");
+    renderList();
+  });
+  $("refreshBtn").addEventListener("click", loadRecent);
+
+  window.addEventListener("beforeunload", (e) => {
+    if (state.busy) { e.preventDefault(); e.returnValue = ""; }
+  });
+
+  /* ============ boot ============ */
+  setReady(false);
+  renderList();
+  const saved = savedToken();
+  if (saved) {
+    $("token").value = saved;
+    connect(saved, true);
+  } else {
+    loadRecent();
+  }
+})();
+</script>
+</body>
+</html>

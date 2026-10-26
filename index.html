@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b14">
+  <title>Debt Table — دليلك العملي للخروج من الديون</title>
+  <meta name="description" content="مقالات وأدلة عملية حول إدارة الديون، الميزانية، والتخطيط المالي بالعربية.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Debt Table">
+  <meta property="og:description" content="مقالات وأدلة عملية حول إدارة الديون، الميزانية، والتخطيط المالي بالعربية.">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/vendor/purify.min.js" defer></script>
+  <script src="assets/js/common.js" defer></script>
+  <script src="assets/js/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">تجاوز إلى المحتوى</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="الصفحة الرئيسية">
+        <img src="assets/logo.svg" alt="" width="38" height="38">
+        <span class="brand-name"><span data-site-name>Debt Table</span><small>منصة نشر</small></span>
+      </a>
+      <nav class="site-nav" aria-label="التنقل الرئيسي">
+        <a href="index.html">الرئيسية</a>
+        <a href="#sections">الأقسام</a>
+        <a href="#latest">أحدث المقالات</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn btn-ghost btn-sm" href="admin.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+          <span>لوحة التحكم</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid" id="heroGrid">
+        <div class="hero-copy">
+          <span class="eyebrow"><span class="dot"></span> منصة نشر عربية</span>
+          <h1 data-site-tagline>دليلك العملي للخروج من الديون وبناء مستقبل مالي أفضل</h1>
+          <p class="hero-lead" data-site-description>
+            مقالات وأدلة عملية حول إدارة الديون، الميزانية، والتخطيط المالي بالعربية.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#latest">
+              تصفح المقالات
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path>
+              </svg>
+            </a>
+            <a class="btn btn-ghost" href="#sections">استكشف الأقسام</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><strong id="statPosts">—</strong><span>مقالاً منشوراً</span></div>
+            <div class="hero-stat"><strong id="statSections">—</strong><span>قسماً</span></div>
+            <div class="hero-stat"><strong id="statUpdated">—</strong><span>آخر تحديث</span></div>
+          </div>
+        </div>
+        <div id="featuredWrap" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="sections-band" id="sections">
+      <div class="container">
+        <div class="band-head">
+          <h2>الأقسام</h2>
+          <span>اختر قسماً لتصفية المقالات</span>
+        </div>
+        <div class="section-strip" id="sectionStrip" role="group" aria-label="تصفية حسب القسم"></div>
+      </div>
+    </section>
+
+    <section class="latest" id="latest">
+      <div class="container">
+        <div class="toolbar">
+          <div class="toolbar-title">
+            <h2>أحدث المقالات</h2>
+            <span id="resultCount"></span>
+          </div>
+          <label class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path>
+            </svg>
+            <input id="searchInput" type="search" placeholder="ابحث في المقالات..." autocomplete="off" aria-label="بحث في المقالات">
+          </label>
+        </div>
+
+        <div class="post-grid" id="postGrid" aria-live="polite">
+          <div class="skeleton-card"><div class="skeleton skeleton-cover"></div><div class="skeleton-body"><div class="skeleton skeleton-line" style="width:30%"></div><div class="skeleton skeleton-line" style="width:88%"></div><div class="skeleton skeleton-line" style="width:70%"></div></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-cover"></div><div class="skeleton-body"><div class="skeleton skeleton-line" style="width:30%"></div><div class="skeleton skeleton-line" style="width:88%"></div><div class="skeleton skeleton-line" style="width:70%"></div></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-cover"></div><div class="skeleton-body"><div class="skeleton skeleton-line" style="width:30%"></div><div class="skeleton skeleton-line" style="width:88%"></div><div class="skeleton skeleton-line" style="width:70%"></div></div></div>
+        </div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <strong id="emptyTitle">لا توجد مقالات بعد</strong>
+          <p id="emptyText">ابدأ بنشر أول مقال من لوحة التحكم، وسيظهر هنا مباشرة.</p>
+          <button class="btn btn-ghost btn-sm" id="retryBtn" type="button" hidden>إعادة المحاولة</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <img src="assets/logo.svg" alt="" width="38" height="38">
+          <span class="brand-name"><span data-site-name>Debt Table</span><small>منصة نشر</small></span>
+        </a>
+        <p data-site-footer>Debt Table — محتوى مالي عملي، بلا تعقيد.</p>
+      </div>
+      <div class="footer-col">
+        <h3>الأقسام</h3>
+        <div id="footerSections"></div>
+      </div>
+      <div class="footer-col">
+        <h3>روابط</h3>
+        <a href="index.html">الرئيسية</a>
+        <a href="index.html#latest">أحدث المقالات</a>
+        <a href="admin.html">لوحة التحكم</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span data-site-year>2026</span> <span data-site-name>Debt Table</span>. جميع الحقوق محفوظة.</span>
+      <span>صُنع بعناية · نشر بسيط</span>
+    </div>
+  </footer>
+</body>
+</html>

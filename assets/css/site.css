@@ -551,6 +551,82 @@ textarea {
   color: color-mix(in srgb, var(--accent) 80%, #fff);
 }
 
+.branch-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+}
+
+.branch-filter[hidden] {
+  display: none;
+}
+
+.branch-filter-label {
+  flex: 0 0 auto;
+  color: var(--muted-2);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.branch-strip {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+  scrollbar-width: none;
+}
+
+.branch-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.branch-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  padding: 0.38rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.18s;
+}
+
+.branch-pill:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.branch-pill.active {
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  color: var(--text);
+}
+
+.branch-pill .count {
+  min-width: 18px;
+  padding: 0 0.32rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted-2);
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.branch-pill.active .count {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: color-mix(in srgb, var(--accent) 80%, #fff);
+}
+
 /* ---------- Latest / toolbar ---------- */
 
 .latest {
@@ -685,6 +761,7 @@ textarea {
 
 .card-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
   margin-bottom: 0.65rem;
@@ -903,6 +980,12 @@ textarea {
 
 .back-link:hover {
   color: var(--accent);
+}
+
+.article-head .article-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .article-head h1 {

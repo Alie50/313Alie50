@@ -12,6 +12,10 @@
   const BRANCH = "main";
   const API = "https://api.github.com";
   const TOKEN_KEY = "dt_github_token";
+  const UNLOCK_KEY = "dt_admin_unlocked";
+  const PASSWORD_HASH = "e8233489eeec92a4f636dbd1c734bb46ca1afd5c66aa6cfffc379d81503336f3";
+  const MAX_LOCK_ATTEMPTS = 5;
+  const LOCKOUT_MS = 30000;
 
   const VIEW_TITLES = {
     dashboard: "لوحة التحكم",
@@ -24,6 +28,12 @@
   const $ = function (id) { return document.getElementById(id); };
 
   const els = {
+    lockView: $("lockView"),
+    lockForm: $("lockForm"),
+    adminPassword: $("adminPassword"),
+    togglePassword: $("togglePassword"),
+    lockBtn: $("lockBtn"),
+    lockError: $("lockError"),
     connectView: $("connectView"),
     connectForm: $("connectForm"),
     tokenInput: $("tokenInput"),
@@ -46,18 +56,21 @@
     statPublished: $("statPublished"),
     statDrafts: $("statDrafts"),
     statSectionsAdmin: $("statSectionsAdmin"),
+    statBranchesNote: $("statBranchesNote"),
     statLastUpdate: $("statLastUpdate"),
     recentPosts: $("recentPosts"),
     postsSummary: $("postsSummary"),
     postsSearch: $("postsSearch"),
     postsStatusFilter: $("postsStatusFilter"),
     postsSectionFilter: $("postsSectionFilter"),
+    postsBranchFilter: $("postsBranchFilter"),
     postsList: $("postsList"),
     editorTitle: $("editorTitle"),
     editorStatus: $("editorStatus"),
     postTitle: $("postTitle"),
     postSlug: $("postSlug"),
     postSection: $("postSection"),
+    postBranch: $("postBranch"),
     postExcerpt: $("postExcerpt"),
     excerptCount: $("excerptCount"),
     postContent: $("postContent"),
@@ -112,6 +125,9 @@
   let searchTimer = null;
   let previewReturnFocus = null;
   const connectBtnHTML = els.connectBtn.innerHTML;
+  const lockBtnHTML = els.lockBtn.innerHTML;
+  let lockAttempts = 0;
+  let lockBlockedUntil = 0;
 
   /* ---------------- small helpers ---------------- */
 
@@ -150,6 +166,43 @@
       index += 1;
     }
     return candidate;
+  }
+
+  function allBranches() {
+    const list = [];
+    state.sections.forEach(function (section) {
+      (section.children || []).forEach(function (branch) {
+        list.push({ section: section, branch: branch });
+      });
+    });
+    return list;
+  }
+
+  function findBranch(branchId) {
+    for (let i = 0; i < state.sections.length; i += 1) {
+      const section = state.sections[i];
+      const children = section.children || [];
+      const index = children.findIndex(function (branch) { return branch.id === branchId; });
+      if (index !== -1) return { section: section, branch: children[index], index: index };
+    }
+    return null;
+  }
+
+  function uniqueBranchId(base) {
+    const root = slugify(base) || "branch";
+    const existing = new Set();
+    allBranches().forEach(function (item) { existing.add(item.branch.id); });
+    let candidate = root;
+    let index = 2;
+    while (existing.has(candidate)) {
+      candidate = root + "-" + index;
+      index += 1;
+    }
+    return candidate;
+  }
+
+  function postBranchName(post) {
+    return post && post.branch ? DT.branchName(post.section, post.branch, state.sections) : "";
   }
 
   function sortByUpdated(posts) {
@@ -421,7 +474,7 @@
       getJson("data/site.json", DT.DEFAULTS.site),
     ]);
     state.posts = Array.isArray(results[0].data) ? results[0].data : [];
-    state.sections = Array.isArray(results[1].data) ? results[1].data : [];
+    state.sections = DT.normalizeSections(results[1].data);
     state.site = Object.assign({}, DT.DEFAULTS.site, results[2].data && !Array.isArray(results[2].data) ? results[2].data : {});
   }
 
@@ -450,13 +503,91 @@
     }
   }
 
+  function showLockView() {
+    els.lockView.hidden = false;
+    els.connectView.hidden = true;
+    els.appView.hidden = true;
+    document.title = "دخول لوحة التحكم — Debt Table";
+    window.setTimeout(function () { els.adminPassword.focus(); }, 60);
+  }
+
+  function showLockError(message) {
+    if (!message) {
+      els.lockError.hidden = true;
+      els.lockError.textContent = "";
+      return;
+    }
+    els.lockError.hidden = false;
+    els.lockError.textContent = message;
+  }
+
+  async function sha256Hex(text) {
+    if (!(window.crypto && window.crypto.subtle)) return null;
+    const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(digest)).map(function (byte) {
+      return byte.toString(16).padStart(2, "0");
+    }).join("");
+  }
+
+  async function handleUnlock(event) {
+    event.preventDefault();
+    if (Date.now() < lockBlockedUntil) {
+      const seconds = Math.ceil((lockBlockedUntil - Date.now()) / 1000);
+      showLockError("محاولات كثيرة. انتظر " + seconds + " ثانية ثم حاول مجدداً.");
+      return;
+    }
+    const value = els.adminPassword.value;
+    if (!value) {
+      showLockError("أدخل كلمة المرور أولاً.");
+      els.adminPassword.focus();
+      return;
+    }
+
+    els.lockBtn.disabled = true;
+    els.lockBtn.textContent = "جاري التحقق...";
+    showLockError("");
+    try {
+      const hash = await sha256Hex(value);
+      if (!hash) {
+        showLockError("هذا المتصفح لا يدعم التحقق الآمن. استخدم متصفحاً حديثاً.");
+        return;
+      }
+      if (hash === PASSWORD_HASH) {
+        lockAttempts = 0;
+        sessionStorage.setItem(UNLOCK_KEY, "1");
+        els.adminPassword.value = "";
+        const token = readToken();
+        if (token) connect(token, localStorage.getItem(TOKEN_KEY) === token, true);
+        else showConnectView();
+      } else {
+        lockAttempts += 1;
+        if (lockAttempts >= MAX_LOCK_ATTEMPTS) {
+          lockAttempts = 0;
+          lockBlockedUntil = Date.now() + LOCKOUT_MS;
+          showLockError("تجاوزت عدد المحاولات المسموح. انتظر 30 ثانية ثم حاول مجدداً.");
+        } else {
+          showLockError("كلمة المرور غير صحيحة. المحاولة " + lockAttempts + " من " + MAX_LOCK_ATTEMPTS + ".");
+        }
+        els.adminPassword.select();
+      }
+    } catch (error) {
+      console.error(error);
+      showLockError("تعذر التحقق من كلمة المرور في هذا المتصفح.");
+    } finally {
+      els.lockBtn.disabled = false;
+      els.lockBtn.innerHTML = lockBtnHTML;
+    }
+  }
+
   function showConnectView() {
+    els.lockView.hidden = true;
     els.connectView.hidden = false;
     els.appView.hidden = true;
     document.title = "لوحة التحكم — Debt Table";
   }
 
   function showApp() {
+    els.lockView.hidden = true;
     els.connectView.hidden = true;
     els.appView.hidden = false;
     DT.applyAccent(state.site.accent);
@@ -482,9 +613,44 @@
     });
   }
 
+  function renderBranchSelect(preferred) {
+    const sectionId = els.postSection.value;
+    const branches = DT.branchesOf(sectionId, state.sections);
+    const value = preferred == null ? els.postBranch.value : preferred;
+    els.postBranch.innerHTML =
+      '<option value="">بدون فرع</option>' +
+      branches
+        .map(function (branch) {
+          return '<option value="' + DT.escapeHtml(branch.id) + '">' + DT.escapeHtml(branch.name) + "</option>";
+        })
+        .join("");
+    els.postBranch.value = branches.some(function (branch) { return branch.id === value; })
+      ? value
+      : "";
+  }
+
+  function renderPostsBranchFilter(preferred) {
+    const sectionId = els.postsSectionFilter.value;
+    const branches = sectionId === "all" ? [] : DT.branchesOf(sectionId, state.sections);
+    const value = preferred == null ? els.postsBranchFilter.value : preferred;
+    els.postsBranchFilter.innerHTML =
+      '<option value="all">كل الفروع</option>' +
+      branches
+        .map(function (branch) {
+          return '<option value="' + DT.escapeHtml(branch.id) + '">' + DT.escapeHtml(branch.name) + "</option>";
+        })
+        .join("");
+    els.postsBranchFilter.value = branches.some(function (branch) { return branch.id === value; })
+      ? value
+      : "all";
+    els.postsBranchFilter.disabled = !branches.length;
+  }
+
   function renderSectionSelects() {
     const editorValue = els.postSection.value;
+    const branchValue = els.postBranch.value;
     const filterValue = els.postsSectionFilter.value;
+    const branchFilterValue = els.postsBranchFilter.value;
     const options = state.sections
       .map(function (section) {
         return '<option value="' + DT.escapeHtml(section.id) + '">' + DT.escapeHtml(section.name) + "</option>";
@@ -497,19 +663,33 @@
       els.postSection.value = editorValue;
     } else if (state.sections.length) {
       els.postSection.value = state.sections[0].id;
+    } else {
+      els.postSection.value = "";
     }
+    renderBranchSelect(branchValue);
     els.postsSectionFilter.value = state.sections.some(function (section) {
       return section.id === filterValue;
     }) ? filterValue : "all";
+    renderPostsBranchFilter(branchFilterValue);
   }
 
   function renderDashboard() {
     const published = state.posts.filter(function (post) { return post.status === "published"; }).length;
     const drafts = state.posts.length - published;
     const latest = sortByUpdated(state.posts)[0];
+    const branchCount = state.sections.reduce(function (total, section) {
+      return total + (section.children || []).length;
+    }, 0);
     els.statPublished.textContent = published;
     els.statDrafts.textContent = drafts;
     els.statSectionsAdmin.textContent = state.sections.length;
+    if (els.statBranchesNote) {
+      if (branchCount === 0) els.statBranchesNote.textContent = "لتنظيم المحتوى";
+      else if (branchCount === 1) els.statBranchesNote.textContent = "فرع واحد داخل الأقسام";
+      else if (branchCount === 2) els.statBranchesNote.textContent = "فرعان داخل الأقسام";
+      else if (branchCount <= 10) els.statBranchesNote.textContent = branchCount + " فروع داخل الأقسام";
+      else els.statBranchesNote.textContent = branchCount + " فرعاً داخل الأقسام";
+    }
     els.statLastUpdate.textContent = latest
       ? DT.formatDate(latest.updatedAt || latest.createdAt, true)
       : "—";
@@ -524,8 +704,7 @@
               '<div class="recent-item">' +
               '<span class="status-pill ' + status + '">' + label + "</span>" +
               '<div class="recent-main"><strong>' + DT.escapeHtml(post.title || "بدون عنوان") + "</strong>" +
-              "<span>" + DT.escapeHtml(sectionName(post.section)) + " · " +
-              DT.escapeHtml(DT.formatDate(post.updatedAt || post.createdAt, true)) + "</span></div>" +
+              "<span>" + DT.escapeHtml([sectionName(post.section), postBranchName(post), DT.formatDate(post.updatedAt || post.createdAt, true)].filter(Boolean).join(" · ")) + "</span></div>" +
               '<button type="button" class="icon-btn" data-edit="' + DT.escapeHtml(post.id) + '" aria-label="تعديل المقال">' +
               '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>' +
               "</button></div>"
@@ -539,6 +718,7 @@
     const query = els.postsSearch.value.trim().toLowerCase();
     const status = els.postsStatusFilter.value;
     const section = els.postsSectionFilter.value;
+    const branch = els.postsBranchFilter.value;
     let list = sortByUpdated(state.posts);
 
     if (query) {
@@ -551,6 +731,9 @@
     }
     if (section !== "all") {
       list = list.filter(function (post) { return post.section === section; });
+    }
+    if (branch !== "all") {
+      list = list.filter(function (post) { return post.branch === branch; });
     }
 
     const published = state.posts.filter(function (post) { return post.status === "published"; }).length;
@@ -572,8 +755,9 @@
               '<div class="post-row">' +
               '<div class="post-row-main"><div class="post-row-title"><strong>' +
               DT.escapeHtml(post.title || "بدون عنوان") + "</strong></div>" +
-              '<div class="post-row-meta"><span>' + DT.escapeHtml(sectionName(post.section)) + "</span>" +
-              "<span>·</span><time>" + DT.escapeHtml(DT.formatDate(post.updatedAt || post.createdAt, true)) + "</time></div></div>" +
+              '<div class="post-row-meta"><span>' +
+              DT.escapeHtml([sectionName(post.section), postBranchName(post)].filter(Boolean).join(" / ")) +
+              '</span><span>·</span><time>' + DT.escapeHtml(DT.formatDate(post.updatedAt || post.createdAt, true)) + "</time></div></div>" +
               '<div class="post-row-actions">' +
               '<span class="status-pill ' + statusClass + '">' + statusLabel + "</span>" +
               '<button type="button" class="row-action" data-edit="' + DT.escapeHtml(post.id) + '" aria-label="تعديل">' +
@@ -589,14 +773,45 @@
   }
 
   function renderSectionsList() {
+    const pencilIcon =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+    const trashIcon =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>';
+
     els.sectionsList.innerHTML = state.sections.length
       ? state.sections
           .map(function (section, index) {
-            const count = state.posts.filter(function (post) { return post.section === section.id; }).length;
+            const children = section.children || [];
+            const count = state.posts.filter(function (post) {
+              return post.section === section.id;
+            }).length;
+            const branchRows = children.length
+              ? children
+                  .map(function (branch) {
+                    const branchCount = state.posts.filter(function (post) {
+                      return post.section === section.id && post.branch === branch.id;
+                    }).length;
+                    return (
+                      '<div class="branch-row">' +
+                      '<span class="branch-name">' + DT.escapeHtml(branch.name) +
+                      '<span class="branch-count">' + branchCount + "</span></span>" +
+                      '<div class="branch-actions">' +
+                      '<button type="button" class="row-action" data-rename-branch="' + DT.escapeHtml(branch.id) +
+                      '" aria-label="إعادة تسمية الفرع">' + pencilIcon + "</button>" +
+                      '<button type="button" class="row-action danger" data-remove-branch="' + DT.escapeHtml(branch.id) +
+                      '" aria-label="حذف الفرع">' + trashIcon + "</button>" +
+                      "</div></div>"
+                    );
+                  })
+                  .join("")
+              : '<div class="branch-empty">لا توجد فروع بعد — أضف أول فرع من الأسفل.</div>';
+
             return (
+              '<div class="section-block">' +
               '<div class="section-row">' +
-              '<div class="section-row-main"><strong>' + DT.escapeHtml(section.name) + "</strong>" +
-              "<small>" + DT.escapeHtml(section.id) + " · " + count + " مقال</small></div>" +
+              '<div class="section-row-main"><strong>' + DT.escapeHtml(section.name) +
+              '<span class="section-count">' + count + "</span></strong>" +
+              "<small>" + DT.escapeHtml(section.id) + " · " + children.length + " فرع</small></div>" +
               '<div class="section-row-actions">' +
               '<button type="button" class="row-action" data-move="up" data-id="' + DT.escapeHtml(section.id) +
               '" aria-label="تحريك لأعلى"' + (index === 0 ? " disabled" : "") + ">" +
@@ -604,15 +819,21 @@
               '<button type="button" class="row-action" data-move="down" data-id="' + DT.escapeHtml(section.id) +
               '" aria-label="تحريك لأسفل"' + (index === state.sections.length - 1 ? " disabled" : "") + ">" +
               '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>' +
-              '<button type="button" class="row-action" data-rename="' + DT.escapeHtml(section.id) + '" aria-label="إعادة تسمية">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>' +
-              '<button type="button" class="row-action danger" data-remove="' + DT.escapeHtml(section.id) + '" aria-label="حذف">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6M14 11v6"></path></svg></button>' +
-              "</div></div>"
+              '<button type="button" class="row-action" data-rename="' + DT.escapeHtml(section.id) +
+              '" aria-label="إعادة تسمية القسم">' + pencilIcon + "</button>" +
+              '<button type="button" class="row-action danger" data-remove="' + DT.escapeHtml(section.id) +
+              '" aria-label="حذف القسم">' + trashIcon + "</button>" +
+              "</div></div>" +
+              '<div class="branch-list">' + branchRows +
+              '<form class="branch-add" data-branch-form="' + DT.escapeHtml(section.id) + '">' +
+              '<input type="text" name="branchName" maxlength="40" autocomplete="off" placeholder="اسم الفرع الجديد" aria-label="اسم الفرع الجديد داخل ' +
+              DT.escapeHtml(section.name) + '">' +
+              '<button type="submit" class="btn btn-ghost btn-sm">إضافة فرع</button>' +
+              "</form></div></div>"
             );
           })
           .join("")
-      : '<div class="empty-list">لا توجد أقسام بعد. أضف أول قسم من الأعلى.</div>';
+      : '<div class="empty-list">لا توجد أقسام بعد. أضف أول قسم رئيسي من الأعلى.</div>';
   }
 
   function renderSettings() {
@@ -714,7 +935,13 @@
   function populateEditor(post) {
     els.postTitle.value = post ? post.title || "" : "";
     els.postSlug.value = post ? post.slug || "" : "";
-    els.postSection.value = post && post.section ? post.section : (state.sections[0] ? state.sections[0].id : "");
+    const knownSection = post && state.sections.some(function (section) {
+      return section.id === post.section;
+    });
+    els.postSection.value = knownSection
+      ? post.section
+      : (state.sections[0] ? state.sections[0].id : "");
+    renderBranchSelect(post ? post.branch || "" : "");
     els.postExcerpt.value = post ? post.excerpt || "" : "";
     els.postContent.innerHTML = post ? DT.sanitize(post.content || "") : "";
     els.postCover.value = post ? post.cover || "" : "";
@@ -760,11 +987,16 @@
     const title = els.postTitle.value.trim();
     const status = mode === "publish" ? "published" : "draft";
     const excerpt = els.postExcerpt.value.trim() || DT.truncate(DT.plainText(content), 160);
+    const sectionId = els.postSection.value || "";
+    const branchId = els.postBranch.value || "";
     return {
       id: state.editingId || uid(),
       slug: els.postSlug.value.trim() || slugify(title) || "post-" + Date.now(),
       title: title,
-      section: els.postSection.value || "",
+      section: sectionId,
+      branch: DT.branchesOf(sectionId, state.sections).some(function (branch) {
+        return branch.id === branchId;
+      }) ? branchId : "",
       excerpt: excerpt,
       content: content,
       cover: els.postCover.value.trim(),
@@ -941,6 +1173,7 @@
     previewReturnFocus = document.activeElement;
     const post = collectEditor("preview");
     const section = DT.escapeHtml(sectionName(post.section));
+    const branch = DT.escapeHtml(postBranchName(post));
     const date = post.publishedAt ? DT.formatDate(post.publishedAt, true) : "الآن";
     const cover = post.cover
       ? '<figure class="article-cover"><img src="' + DT.escapeHtml(post.cover) +
@@ -948,7 +1181,9 @@
       : "";
     els.previewBody.innerHTML =
       '<article><header class="article-head">' +
-      '<span class="badge">' + section + "</span>" +
+      '<div class="article-badges"><span class="badge">' + section + "</span>" +
+      (branch ? '<span class="badge badge-neutral">' + branch + "</span>" : "") +
+      "</div>" +
       "<h1>" + DT.escapeHtml(post.title || "بدون عنوان") + "</h1>" +
       (post.excerpt ? '<p class="article-excerpt">' + DT.escapeHtml(post.excerpt) + "</p>" : "") +
       '<div class="article-meta"><span>' + DT.escapeHtml(date) + '</span><span class="sep"></span><span>' +
@@ -973,6 +1208,18 @@
   /* ---------------- event wiring ---------------- */
 
   function bindEvents() {
+    els.lockForm.addEventListener("submit", handleUnlock);
+
+    els.adminPassword.addEventListener("input", function () {
+      if (!els.lockError.hidden) showLockError("");
+    });
+
+    els.togglePassword.addEventListener("click", function () {
+      const visible = els.adminPassword.type === "text";
+      els.adminPassword.type = visible ? "password" : "text";
+      els.togglePassword.textContent = visible ? "إظهار" : "إخفاء";
+    });
+
     els.connectForm.addEventListener("submit", function (event) {
       event.preventDefault();
       const token = els.tokenInput.value.trim();
@@ -1023,7 +1270,11 @@
       searchTimer = setTimeout(renderPostsList, 120);
     });
     els.postsStatusFilter.addEventListener("change", renderPostsList);
-    els.postsSectionFilter.addEventListener("change", renderPostsList);
+    els.postsSectionFilter.addEventListener("change", function () {
+      renderPostsBranchFilter("all");
+      renderPostsList();
+    });
+    els.postsBranchFilter.addEventListener("change", renderPostsList);
 
     els.recentPosts.addEventListener("click", function (event) {
       const button = event.target.closest("[data-edit]");
@@ -1042,7 +1293,25 @@
 
     els.sectionForm.addEventListener("submit", addSection);
 
+    els.sectionsList.addEventListener("submit", function (event) {
+      const form = event.target.closest("[data-branch-form]");
+      if (!form) return;
+      event.preventDefault();
+      const input = form.querySelector('input[name="branchName"]');
+      addBranch(form.getAttribute("data-branch-form"), input ? input.value : "");
+    });
+
     els.sectionsList.addEventListener("click", function (event) {
+      const renameBranchBtn = event.target.closest("[data-rename-branch]");
+      if (renameBranchBtn) {
+        renameBranch(renameBranchBtn.getAttribute("data-rename-branch"));
+        return;
+      }
+      const removeBranchBtn = event.target.closest("[data-remove-branch]");
+      if (removeBranchBtn) {
+        removeBranch(removeBranchBtn.getAttribute("data-remove-branch"));
+        return;
+      }
       const rename = event.target.closest("[data-rename]");
       if (rename) {
         renameSection(rename.getAttribute("data-rename"));
@@ -1069,7 +1338,11 @@
       markDirty();
     });
 
-    els.postSection.addEventListener("change", markDirty);
+    els.postSection.addEventListener("change", function () {
+      renderBranchSelect("");
+      markDirty();
+    });
+    els.postBranch.addEventListener("change", markDirty);
     els.postExcerpt.addEventListener("input", function () {
       updateExcerptCount();
       markDirty();
@@ -1218,7 +1491,7 @@
       toast("هذا القسم موجود بالفعل.", "error");
       return;
     }
-    const section = { id: uniqueSectionId(name), name: name };
+    const section = { id: uniqueSectionId(name), name: name, children: [] };
     state.sections.push(section);
     const ok = await runSave(function () { return persistSections("إضافة قسم: " + name); }, "تمت إضافة القسم.");
     if (!ok) {
@@ -1255,12 +1528,88 @@
       toast("لا يمكن حذف قسم يحتوي على " + count + " مقال. انقل المقالات أولاً.", "error");
       return;
     }
+    const branchCount = (section.children || []).length;
+    if (branchCount > 0 && !window.confirm(
+      "قسم «" + section.name + "» يحتوي على " + branchCount + " فرع. سيتم حذف الفروع أيضاً. هل تريد المتابعة؟"
+    )) {
+      return;
+    }
     if (!window.confirm("حذف قسم «" + section.name + "»؟")) return;
     const index = state.sections.indexOf(section);
     state.sections.splice(index, 1);
     const ok = await runSave(function () { return persistSections("حذف قسم: " + section.name); }, "تم حذف القسم.");
     if (!ok) {
       state.sections.splice(index, 0, section);
+      return;
+    }
+    renderAll();
+  }
+
+  async function addBranch(sectionId, rawName) {
+    const section = state.sections.find(function (item) { return item.id === sectionId; });
+    if (!section) return;
+    const name = String(rawName || "").trim();
+    if (!name) {
+      toast("اكتب اسم الفرع.", "error");
+      return;
+    }
+    section.children = section.children || [];
+    if (section.children.some(function (branch) { return branch.name.trim() === name; })) {
+      toast("هذا الفرع موجود بالفعل داخل القسم.", "error");
+      return;
+    }
+    const branch = { id: uniqueBranchId(name), name: name };
+    section.children.push(branch);
+    const ok = await runSave(
+      function () { return persistSections("إضافة فرع: " + name + " في " + section.name); },
+      "تمت إضافة الفرع."
+    );
+    if (!ok) {
+      section.children.pop();
+      return;
+    }
+    renderAll();
+  }
+
+  async function renameBranch(branchId) {
+    const found = findBranch(branchId);
+    if (!found) return;
+    const name = window.prompt("اسم الفرع الجديد:", found.branch.name);
+    if (!name || !name.trim() || name.trim() === found.branch.name) return;
+    if ((found.section.children || []).some(function (branch) {
+      return branch.id !== branchId && branch.name.trim() === name.trim();
+    })) {
+      toast("يوجد فرع آخر بهذا الاسم داخل القسم.", "error");
+      return;
+    }
+    const oldName = found.branch.name;
+    found.branch.name = name.trim();
+    const ok = await runSave(
+      function () { return persistSections("إعادة تسمية فرع: " + oldName); },
+      "تم تحديث الفرع."
+    );
+    if (!ok) found.branch.name = oldName;
+    else renderAll();
+  }
+
+  async function removeBranch(branchId) {
+    const found = findBranch(branchId);
+    if (!found) return;
+    const count = state.posts.filter(function (post) {
+      return post.section === found.section.id && post.branch === branchId;
+    }).length;
+    if (count > 0) {
+      toast("لا يمكن حذف فرع يحتوي على " + count + " مقال. انقل المقالات أولاً.", "error");
+      return;
+    }
+    if (!window.confirm("حذف فرع «" + found.branch.name + "» من قسم «" + found.section.name + "»؟")) return;
+    found.section.children.splice(found.index, 1);
+    const ok = await runSave(
+      function () { return persistSections("حذف فرع: " + found.branch.name); },
+      "تم حذف الفرع."
+    );
+    if (!ok) {
+      found.section.children.splice(found.index, 0, found.branch);
       return;
     }
     renderAll();
@@ -1327,6 +1676,7 @@
   function logout() {
     if (state.dirty && !window.confirm("لديك تغييرات غير محفوظة. هل تريد تسجيل الخروج؟")) return;
     clearToken();
+    sessionStorage.removeItem(UNLOCK_KEY);
     state.token = null;
     window.location.reload();
   }
@@ -1335,10 +1685,15 @@
 
   bindEvents();
 
-  const savedToken = readToken();
-  if (savedToken) {
-    connect(savedToken, localStorage.getItem(TOKEN_KEY) === savedToken, true);
+  if (sessionStorage.getItem(UNLOCK_KEY) !== "1") {
+    showLockView();
   } else {
-    showConnectView();
+    els.lockView.hidden = true;
+    const savedToken = readToken();
+    if (savedToken) {
+      connect(savedToken, localStorage.getItem(TOKEN_KEY) === savedToken, true);
+    } else {
+      showConnectView();
+    }
   }
 })();

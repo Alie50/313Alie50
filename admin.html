@@ -18,8 +18,64 @@
 </head>
 <body class="admin-body">
 
+  <!-- ================= Lock screen ================= -->
+  <div class="connect-wrap lock-wrap" id="lockView">
+    <div class="connect-card lock-card">
+      <a class="brand connect-brand" href="index.html">
+        <img src="assets/logo.svg" alt="" width="42" height="42">
+        <span class="brand-name"><span>Debt Table</span><small>لوحة التحكم</small></span>
+      </a>
+
+      <div class="lock-icon" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+          <path d="M12 15v2"></path>
+        </svg>
+      </div>
+
+      <h1>دخول لوحة التحكم</h1>
+      <p class="connect-lead">
+        هذه الصفحة محمية بكلمة مرور. أدخل كلمة المرور للمتابعة إلى إدارة المقالات والأقسام.
+      </p>
+
+      <form id="lockForm" novalidate>
+        <label class="field">
+          <span>كلمة المرور</span>
+          <div class="token-row">
+            <input id="adminPassword" type="password" dir="ltr" autocomplete="current-password" spellcheck="false" placeholder="••••••••">
+            <button type="button" class="btn btn-ghost btn-sm" id="togglePassword">إظهار</button>
+          </div>
+        </label>
+
+        <div class="form-error" id="lockError" role="alert" hidden></div>
+
+        <button class="btn btn-primary connect-btn" type="submit" id="lockBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+          </svg>
+          دخول
+        </button>
+      </form>
+
+      <div class="connect-links">
+        <a href="index.html">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          العودة إلى الموقع
+        </a>
+      </div>
+
+      <p class="security-note">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+        </svg>
+        كلمة المرور تحمي واجهة اللوحة، أما النشر الفعلي فيبقى محمياً بتوكن GitHub الذي لا يُحفظ في المستودع.
+      </p>
+    </div>
+  </div>
+
   <!-- ================= Connect screen ================= -->
-  <div class="connect-wrap" id="connectView">
+  <div class="connect-wrap" id="connectView" hidden>
     <div class="connect-card">
       <a class="brand connect-brand" href="index.html">
         <img src="assets/logo.svg" alt="" width="42" height="42">
@@ -200,7 +256,7 @@
             <article class="stat-card">
               <span class="stat-label">الأقسام</span>
               <strong id="statSectionsAdmin">0</strong>
-              <small>لتنظيم المحتوى</small>
+              <small id="statBranchesNote">لتنظيم المحتوى</small>
             </article>
             <article class="stat-card">
               <span class="stat-label">آخر تحديث</span>
@@ -234,7 +290,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"></path><path d="M4 4h6l2 3h8v9H4z"></path></svg>
                 </span>
                 <strong>نظّم الأقسام</strong>
-                <small>أضف أقساماً جديدة أو أعد تسميتها</small>
+                <small>أضف أقساماً رئيسية وفروعاً داخل كل قسم</small>
               </button>
               <a class="quick-card" href="index.html" target="_blank" rel="noopener">
                 <span class="quick-icon">
@@ -274,6 +330,9 @@
               <select id="postsSectionFilter" aria-label="تصفية حسب القسم">
                 <option value="all">كل الأقسام</option>
               </select>
+              <select id="postsBranchFilter" aria-label="تصفية حسب الفرع" disabled>
+                <option value="all">كل الفروع</option>
+              </select>
             </div>
             <div class="posts-list" id="postsList"></div>
           </div>
@@ -309,7 +368,7 @@
                 <input id="postTitle" type="text" placeholder="اكتب عنواناً واضحاً وجاذباً" maxlength="140">
               </label>
 
-              <div class="field-row">
+              <div class="field-row field-row-3">
                 <label class="field">
                   <span>الرابط (slug)</span>
                   <input id="postSlug" type="text" dir="ltr" placeholder="my-post" maxlength="100">
@@ -317,6 +376,10 @@
                 <label class="field">
                   <span>القسم</span>
                   <select id="postSection"></select>
+                </label>
+                <label class="field">
+                  <span>الفرع</span>
+                  <select id="postBranch"></select>
                 </label>
               </div>
 
@@ -406,14 +469,14 @@
         <section class="view" data-view="sections" hidden>
           <div class="page-head">
             <div>
-              <h2>الأقسام</h2>
-              <p>الأقسام تظهر في الصفحة الرئيسية وتُستخدم لتصفية المقالات.</p>
+              <h2>الأقسام والفروع</h2>
+              <p>أنشئ أقساماً رئيسية، ثم أضف داخل كل قسم الفروع التي تريد النشر تحتها.</p>
             </div>
           </div>
 
           <div class="sections-layout">
             <div class="panel">
-              <h3>إضافة قسم</h3>
+              <h3>إضافة قسم رئيسي</h3>
               <form class="inline-form" id="sectionForm">
                 <input id="sectionName" type="text" placeholder="مثال: أخبار، دروس، مراجعات" maxlength="40" autocomplete="off">
                 <button type="submit" class="btn btn-primary btn-sm">إضافة</button>
@@ -422,11 +485,12 @@
             </div>
 
             <div class="panel side-note">
-              <h3>كيف تعمل الأقسام؟</h3>
+              <h3>كيف تعمل الأقسام والفروع؟</h3>
               <ul class="note-list">
-                <li>كل مقال ينتمي إلى قسم واحد.</li>
-                <li>يمكنك إعادة تسمية القسم دون أن تتأثر المقالات.</li>
-                <li>لا يمكن حذف قسم يحتوي على مقالات؛ انقل المقالات أولاً.</li>
+                <li>كل مقال ينتمي إلى قسم رئيسي، ويمكن أن ينتمي إلى فرع داخله.</li>
+                <li>لكل قسم فروع خاصة به، تُدار من قائمة القسم نفسه.</li>
+                <li>إعادة تسمية القسم أو الفرع لا تؤثر على المقالات المرتبطة.</li>
+                <li>لا يمكن حذف قسم أو فرع يحتوي على مقالات؛ انقل المقالات أولاً.</li>
                 <li>ترتيب الأقسام هنا هو نفسه ترتيب ظهورها في الموقع.</li>
               </ul>
             </div>

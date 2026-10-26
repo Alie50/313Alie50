@@ -34,6 +34,26 @@
   margin-bottom: 1.5rem;
 }
 
+.lock-card {
+  width: min(460px, 100%);
+}
+
+.lock-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: color-mix(in srgb, var(--accent) 85%, #fff);
+}
+
+.lock-card h1 {
+  margin-bottom: 0.5rem;
+}
+
 .connect-card h1 {
   margin: 0 0 0.6rem;
   font-size: clamp(1.5rem, 3.5vw, 2rem);
@@ -695,6 +715,10 @@
   gap: 0.9rem;
 }
 
+.field-row-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .inline-form {
   display: flex;
   gap: 0.6rem;
@@ -709,6 +733,7 @@
 
 .list-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   margin-bottom: 1rem;
 }
@@ -1153,6 +1178,99 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.section-block {
+  padding: 0.7rem 0 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-block:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.section-block .section-row {
+  padding: 0.15rem 0;
+  border-bottom: 0;
+}
+
+.section-count,
+.branch-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  margin-inline-start: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: color-mix(in srgb, var(--accent) 80%, #fff);
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+.branch-list {
+  margin-top: 0.5rem;
+  margin-inline-start: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.branch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+}
+
+.branch-name {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.branch-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+}
+
+.branch-actions .row-action {
+  width: 26px;
+  height: 26px;
+}
+
+.branch-empty {
+  padding: 0.25rem 0;
+  color: var(--muted-2);
+  font-size: 0.74rem;
+}
+
+.branch-add {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--border);
+}
+
+.admin-body .branch-add input {
+  flex: 1;
+  min-height: 34px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.branch-add .btn {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.76rem;
 }
 
 .side-note p {

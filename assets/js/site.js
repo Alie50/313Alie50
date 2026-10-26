@@ -3,6 +3,8 @@
 
   const grid = document.getElementById("postGrid");
   const strip = document.getElementById("sectionStrip");
+  const branchFilter = document.getElementById("branchFilter");
+  const branchStrip = document.getElementById("branchStrip");
   const footerSections = document.getElementById("footerSections");
   const featuredWrap = document.getElementById("featuredWrap");
   const heroGrid = document.getElementById("heroGrid");
@@ -19,6 +21,7 @@
   const data = { site: DT.DEFAULTS.site, sections: [], posts: [] };
   const state = {
     section: DT.param("section") || "all",
+    branch: DT.param("branch") || "all",
     query: "",
   };
   let allPosts = [];
@@ -104,12 +107,71 @@
           })
           .join("")
       : '<span style="color:var(--muted-2);font-size:.86rem">لا توجد أقسام بعد</span>';
+
+    renderBranches();
+  }
+
+  function currentSection() {
+    return data.sections.find(function (section) { return section.id === state.section; }) || null;
+  }
+
+  function renderBranches() {
+    const section = currentSection();
+    const branches = section && Array.isArray(section.children) ? section.children : [];
+
+    if (!branches.length) {
+      branchFilter.hidden = true;
+      branchStrip.innerHTML = "";
+      state.branch = "all";
+      return;
+    }
+
+    if (state.branch !== "all" && !branches.some(function (branch) {
+      return branch.id === state.branch;
+    })) {
+      state.branch = "all";
+    }
+
+    const sectionPosts = allPosts.filter(function (post) {
+      return post.section === state.section;
+    });
+    const items = [{
+      id: "all",
+      name: "كل الفروع",
+      count: sectionPosts.length,
+    }].concat(
+      branches.map(function (branch) {
+        return {
+          id: branch.id,
+          name: branch.name,
+          count: sectionPosts.filter(function (post) {
+            return post.branch === branch.id;
+          }).length,
+        };
+      })
+    );
+
+    branchFilter.hidden = false;
+    branchStrip.innerHTML = items
+      .map(function (item) {
+        const active = item.id === state.branch ? " active" : "";
+        return (
+          '<button type="button" class="branch-pill' + active + '" data-branch="' +
+          DT.escapeHtml(item.id) + '" aria-pressed="' + (item.id === state.branch) + '">' +
+          DT.escapeHtml(item.name) +
+          '<span class="count">' + item.count + "</span></button>"
+        );
+      })
+      .join("");
   }
 
   function filteredPosts() {
     let list = allPosts.slice();
     if (state.section !== "all") {
       list = list.filter(function (post) { return post.section === state.section; });
+    }
+    if (state.branch !== "all") {
+      list = list.filter(function (post) { return post.branch === state.branch; });
     }
     const query = state.query.trim().toLowerCase();
     if (query) {
@@ -119,6 +181,7 @@
           post.excerpt,
           DT.plainText(post.content),
           DT.sectionName(post.section, data.sections),
+          DT.branchName(post.section, post.branch, data.sections),
         ]
           .join(" ")
           .toLowerCase();
@@ -142,15 +205,21 @@
         emptyText.textContent = "ابدأ بنشر أول مقال من لوحة التحكم، وسيظهر هنا مباشرة.";
       } else {
         emptyTitle.textContent = "لا توجد نتائج مطابقة";
-        emptyText.textContent = "جرّب كلمة بحث أخرى أو اختر قسماً مختلفاً.";
+        emptyText.textContent = "جرّب كلمة بحث أخرى أو اختر قسماً أو فرعاً مختلفاً.";
       }
     }
   }
 
   function syncUrl() {
     const url = new URL(window.location.href);
-    if (state.section === "all") url.searchParams.delete("section");
-    else url.searchParams.set("section", state.section);
+    if (state.section === "all") {
+      url.searchParams.delete("section");
+      url.searchParams.delete("branch");
+    } else {
+      url.searchParams.set("section", state.section);
+      if (state.branch === "all") url.searchParams.delete("branch");
+      else url.searchParams.set("branch", state.branch);
+    }
     url.hash = "latest";
     history.replaceState(null, "", url);
   }
@@ -200,8 +269,23 @@
     const button = event.target.closest("[data-section]");
     if (!button) return;
     state.section = button.getAttribute("data-section");
+    state.branch = "all";
     strip.querySelectorAll(".section-pill").forEach(function (pill) {
       const active = pill.getAttribute("data-section") === state.section;
+      pill.classList.toggle("active", active);
+      pill.setAttribute("aria-pressed", String(active));
+    });
+    renderBranches();
+    renderGrid();
+    syncUrl();
+  });
+
+  branchStrip.addEventListener("click", function (event) {
+    const button = event.target.closest("[data-branch]");
+    if (!button) return;
+    state.branch = button.getAttribute("data-branch");
+    branchStrip.querySelectorAll(".branch-pill").forEach(function (pill) {
+      const active = pill.getAttribute("data-branch") === state.branch;
       pill.classList.toggle("active", active);
       pill.setAttribute("aria-pressed", String(active));
     });

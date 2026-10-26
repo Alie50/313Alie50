@@ -51,7 +51,13 @@
 
   function relatedPosts(post, posts) {
     const published = DT.published(posts).filter(function (item) { return item.id !== post.id; });
-    let related = published.filter(function (item) { return item.section === post.section; });
+    const sameBranch = published.filter(function (item) {
+      return post.branch && item.section === post.section && item.branch === post.branch;
+    });
+    const sameSection = published.filter(function (item) {
+      return item.section === post.section && sameBranch.indexOf(item) === -1;
+    });
+    let related = sameBranch.concat(sameSection);
     if (related.length < 3) {
       const extra = published.filter(function (item) { return related.indexOf(item) === -1; });
       related = related.concat(extra);
@@ -61,6 +67,7 @@
 
   function renderPost(post, site, sections, posts) {
     const section = DT.sectionName(post.section, sections);
+    const branch = DT.branchName(post.section, post.branch, sections);
     const date = DT.formatDate(post.publishedAt || post.updatedAt);
     const minutes = DT.readingTime(post.content);
     const content = DT.sanitize(post.content || "");
@@ -78,7 +85,10 @@
       "العودة إلى المقالات</a>" +
       '<article>' +
       '<header class="article-head">' +
+      '<div class="article-badges">' +
       '<span class="badge">' + DT.escapeHtml(section) + "</span>" +
+      (branch ? '<span class="badge badge-neutral">' + DT.escapeHtml(branch) + "</span>" : "") +
+      "</div>" +
       "<h1>" + DT.escapeHtml(post.title || "بدون عنوان") + "</h1>" +
       (post.excerpt ? '<p class="article-excerpt">' + DT.escapeHtml(post.excerpt) + "</p>" : "") +
       '<div class="article-meta">' +
@@ -90,7 +100,9 @@
       cover +
       '<div class="article-content" id="articleContent">' + content + "</div>" +
       '<footer class="article-foot">' +
-      '<div class="article-tags"><span class="badge badge-neutral">' + DT.escapeHtml(section) + "</span></div>" +
+      '<div class="article-tags"><span class="badge badge-neutral">' + DT.escapeHtml(section) + "</span>" +
+      (branch ? '<span class="badge badge-neutral">' + DT.escapeHtml(branch) + "</span>" : "") +
+      "</div>" +
       '<button class="btn btn-ghost btn-sm" id="copyLink" type="button">' +
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       '<rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +

@@ -28,9 +28,29 @@ window.DT = (function () {
     ]);
     return {
       site: Object.assign({}, DEFAULTS.site, site || {}),
-      sections: Array.isArray(sections) ? sections : [],
+      sections: normalizeSections(sections),
       posts: Array.isArray(posts) ? posts : [],
     };
+  }
+
+  function normalizeSections(sections) {
+    return (Array.isArray(sections) ? sections : [])
+      .filter(function (section) { return section && section.id; })
+      .map(function (section) {
+        const children = (Array.isArray(section.children) ? section.children : [])
+          .filter(function (child) { return child && child.id && child.name; })
+          .map(function (child) {
+            return Object.assign({}, child, {
+              id: String(child.id),
+              name: String(child.name),
+            });
+          });
+        return Object.assign({}, section, {
+          id: String(section.id),
+          name: String(section.name || section.id),
+          children: children,
+        });
+      });
   }
 
   function formatDate(value, short) {
@@ -197,6 +217,23 @@ window.DT = (function () {
     return found ? found.name : "عام";
   }
 
+  function sectionById(id, sections) {
+    return (sections || []).find(function (section) { return section.id === id; }) || null;
+  }
+
+  function branchesOf(sectionId, sections) {
+    const section = sectionById(sectionId, sections);
+    return section && Array.isArray(section.children) ? section.children : [];
+  }
+
+  function branchName(sectionId, branchId, sections) {
+    if (!branchId) return "";
+    const found = branchesOf(sectionId, sections).find(function (branch) {
+      return branch.id === branchId;
+    });
+    return found ? found.name : "";
+  }
+
   function hueFor(value) {
     let hash = 0;
     const text = String(value || "general");
@@ -287,6 +324,10 @@ window.DT = (function () {
       post.excerpt || truncate(plainText(post.content), 150) || "اقرأ المقال كاملاً."
     );
     const section = escapeHtml(sectionName(post.section, sections));
+    const branchLabel = branchName(post.section, post.branch, sections);
+    const branch = branchLabel
+      ? '<span class="badge badge-neutral">' + escapeHtml(branchLabel) + "</span>"
+      : "";
     const date = formatDate(post.publishedAt || post.updatedAt);
     const dateTime = escapeHtml(post.publishedAt || post.updatedAt || "");
     return (
@@ -295,7 +336,7 @@ window.DT = (function () {
       coverMarkup(post) +
       "</a>" +
       '<div class="card-body">' +
-      '<div class="card-meta"><span class="badge">' + section + "</span>" +
+      '<div class="card-meta"><span class="badge">' + section + "</span>" + branch +
       (date ? '<time datetime="' + dateTime + '">' + escapeHtml(date) + "</time>" : "") +
       "</div>" +
       "<h3><a href=\"" + url + "\">" + title + "</a></h3>" +
@@ -320,6 +361,10 @@ window.DT = (function () {
     applySite: applySite,
     applyAccent: applyAccent,
     sectionName: sectionName,
+    sectionById: sectionById,
+    branchesOf: branchesOf,
+    branchName: branchName,
+    normalizeSections: normalizeSections,
     hueFor: hueFor,
     coverMarkup: coverMarkup,
     postUrl: postUrl,

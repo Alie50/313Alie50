@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مقال — Debt Table 313</title>
+<meta name="color-scheme" content="dark light">
+<style>
+  :root{
+    --bg:#0a0e17;--panel:#131b2a;--line:#25303f;--text:#e8eef8;--muted:#93a2b8;--accent:#38d6b0;--radius:16px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{--bg:#f7f9fc;--panel:#fff;--line:#dbe3ee;--text:#0d1520;--muted:#5c6b80;--accent:#0f9d7d;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,sans-serif;line-height:2}
+  header{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 90%, transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:900px;margin:0 auto;padding:12px 18px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+  .links{display:flex;gap:12px;flex-wrap:wrap}
+  .links a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:999px}
+  main{max-width:900px;margin:0 auto;padding:28px 18px;display:grid;gap:18px}
+  article{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .article-head{display:grid;gap:10px;padding:28px 28px 0}
+  .article-head h1{margin:0;font-size:clamp(26px,6vw,48px);line-height:1.4}
+  .meta{color:var(--muted)}
+  .article-content{padding:18px 28px 32px;display:grid;gap:18px;font-size:18px}
+  .article-content p{margin:0}
+  .back{color:var(--muted);text-decoration:none}
+</style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <a class="brand" href="index.html">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" opacity=".4"/><path d="M7 12h10M12 7l5 5-5 5" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><strong>Debt Table 313</strong></div>
+      </a>
+      <div class="links">
+        <a href="articles.html">← كل المقالات</a>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <a class="back" href="articles.html">العودة إلى المقالات</a>
+    <article id="article" hidden>
+      <header class="article-head">
+        <h1 id="title"></h1>
+        <div class="meta" id="meta"></div>
+      </header>
+      <div class="article-content" id="content"></div>
+    </article>
+    <div id="notfound" hidden style="text-align:center;color:var(--muted);padding:40px">المقال غير موجود</div>
+  </main>
+  <script>
+    function loadPosts(){
+      try{ const raw = localStorage.getItem('dt_posts'); return raw ? JSON.parse(raw) : []; }catch(e){ return []; }
+    }
+    function formatDate(d){
+      try{ return new Date(d).toLocaleDateString('ar-SA', {year:'numeric',month:'long',day:'numeric'}); }catch(e){ return ''; }
+    }
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const posts = loadPosts();
+    const post = posts.find(function(p){ return p && p.id === id && p.status === 'published'; });
+    if(!post){ document.getElementById('notfound').hidden = false; }
+    else {
+      document.title = post.title + ' — Debt Table 313';
+      document.getElementById('title').textContent = post.title;
+      document.getElementById('meta').textContent = formatDate(post.publishedAt||post.createdAt);
+      document.getElementById('content').innerHTML = post.content;
+      document.getElementById('article').hidden = false;
+    }
+  </script>
+</body>
+</html>

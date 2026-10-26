@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b14">
+  <title>صفحة النشر — Debt Table</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="assets/vendor/purify.min.js" defer></script>
+  <script src="assets/js/common.js" defer></script>
+  <script src="assets/js/admin.js" defer></script>
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div class="container admin-header-inner">
+      <div class="admin-brand">
+        <a class="brand" href="index.html">
+          <img src="assets/logo.svg" alt="" width="34" height="34">
+          <span class="brand-name"><span data-site-name>Debt Table</span><small>صفحة النشر</small></span>
+        </a>
+        <nav class="admin-nav">
+          <a href="publish.html" class="active">نشر مقال</a>
+          <a href="articles.html">عرض المقالات</a>
+          <a href="admin.html">لوحة التحكم كاملة</a>
+          <a href="index.html">الموقع العام</a>
+        </nav>
+      </div>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" id="saveDraftBtn" type="button">حفظ مسودة</button>
+        <button class="btn btn-primary btn-sm" id="publishBtn" type="button">نشر</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="container admin-layout">
+      <section class="panel editor-panel">
+        <header class="panel-header">
+          <div>
+            <h1>نشر مقال جديد</h1>
+            <p>اكتب المقال وانشره مباشرةً</p>
+          </div>
+          <span class="badge" id="editorStatus">مسودة</span>
+        </header>
+        <div class="editor-grid">
+          <div class="editor-main">
+            <label class="field">
+              <span class="field-label">عنوان المقال</span>
+              <input id="postTitle" type="text" placeholder="أدخل عنوان المقال">
+            </label>
+            <label class="field">
+              <span class="field-label">رابط مختصر (Slug)</span>
+              <input id="postSlug" type="text" placeholder="يُنشأ تلقائياً من العنوان">
+            </label>
+            <label class="field">
+              <span class="field-label">وصف مختصر (Excerpt)</span>
+              <textarea id="postExcerpt" rows="3" placeholder="وصف قصير يظهر في قائمة المقالات"></textarea>
+            </label>
+            <label class="field">
+              <span class="field-label">المحتوى</span>
+              <textarea id="postContent" rows="18" placeholder="اكتب محتوى المقال هنا... يمكنك استخدام HTML بسيط"></textarea>
+            </label>
+          </div>
+          <aside class="editor-side">
+            <section class="side-card">
+              <header class="side-card-header">
+                <h2>إعدادات النشر</h2>
+              </header>
+              <div class="side-card-body">
+                <label class="field">
+                  <span class="field-label">القسم</span>
+                  <select id="postSection">
+                    <option value="">بدون قسم</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span class="field-label">الفرع</span>
+                  <select id="postBranch">
+                    <option value="">بدون فرع</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span class="field-label">صورة الغلاف</span>
+                  <input id="postCover" type="url" placeholder="رابط صورة الغلاف">
+                </label>
+                <div class="side-meta">
+                  <div><span>الحالة</span><strong id="sideStatus">مسودة</strong></div>
+                  <div><span>آخر تحديث</span><strong id="sideDate">—</strong></div>
+                </div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

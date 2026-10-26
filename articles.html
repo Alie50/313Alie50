@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b14">
+  <title>عرض المقالات — Debt Table</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="assets/vendor/purify.min.js" defer></script>
+  <script src="assets/js/common.js" defer></script>
+  <script src="assets/js/articles.js" defer></script>
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div class="container admin-header-inner">
+      <div class="admin-brand">
+        <a class="brand" href="index.html">
+          <img src="assets/logo.svg" alt="" width="34" height="34">
+          <span class="brand-name"><span data-site-name>Debt Table</span><small>عرض المقالات</small></span>
+        </a>
+        <nav class="admin-nav">
+          <a href="publish.html">نشر مقال</a>
+          <a href="articles.html" class="active">عرض المقالات</a>
+          <a href="admin.html">لوحة التحكم كاملة</a>
+          <a href="index.html">الموقع العام</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="container">
+      <section class="panel">
+        <header class="panel-header">
+          <div>
+            <h1>جميع المقالات</h1>
+            <p>عرض وتعديل المقالات المنشورة والمسودات</p>
+          </div>
+          <a class="btn btn-primary btn-sm" href="publish.html">+ مقال جديد</a>
+        </header>
+        <div class="list-toolbar">
+          <div class="filters">
+            <button class="filter-pill active" data-filter="all">الكل <span id="countAll">0</span></button>
+            <button class="filter-pill" data-filter="published">منشور <span id="countPublished">0</span></button>
+            <button class="filter-pill" data-filter="draft">مسودة <span id="countDraft">0</span></button>
+          </div>
+          <label class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path>
+            </svg>
+            <input id="articlesSearch" type="search" placeholder="ابحث بالعنوان..." autocomplete="off">
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>العنوان</th>
+                <th>القسم</th>
+                <th>الحالة</th>
+                <th>التاريخ</th>
+                <th class="col-actions">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="articlesTable"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="articlesEmpty" hidden>
+          <strong>لا توجد مقالات</strong>
+          <p>ابدأ بنشر مقال جديد</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
